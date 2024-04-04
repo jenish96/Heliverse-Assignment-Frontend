@@ -13,15 +13,14 @@ function NewUser(props) {
     useEffect(() => {
         setClose(props.show)
     }, [handleClose])
-    
+
     const handleSubmit = async () => {
-        setUserData({ ...user, id: userId })
         let result = await fetch('https://heliverse-assignment-backend-bice.vercel.app/api/users/new', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json'
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(user)
+            body: JSON.stringify({ ...user, id: userId })
         })
         props.onCancel()
     }
