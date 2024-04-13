@@ -5,6 +5,7 @@ import Home from './components/Home';
 import { Provider } from 'react-redux';
 import store from './services/store'
 import NewUser from './components/NewUser';
+import Team from './components/Team';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Header />
         <Routes>
           <Route path='/' element={<Home />} />
+          <Route path='/team' element={<Team />} />
         </Routes>
       </Provider>
     </>

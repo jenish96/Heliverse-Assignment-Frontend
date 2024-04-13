@@ -34,7 +34,6 @@ function UpdateUser(props) {
             },
             body: JSON.stringify(user)
         })
-        console.log("updateuser---",user)
         props.onCancel()
         getUsers()
     }

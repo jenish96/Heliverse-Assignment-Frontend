@@ -5,7 +5,7 @@ import { setUser } from "../services/userSlice";
 function NewUser(props) {
     const [isClose, setClose] = useState(true)
     let userId = setUser(useSelector((state) => state.users));
-    userId = (userId.payload.totalUsers) + 100
+    userId = userId.payload.totalUsers + Math.floor(Math.random() * 101)
     const [user, setUserData] = useState()
     const handleClose = () => {
         props.onCancel()
@@ -15,12 +15,15 @@ function NewUser(props) {
     }, [handleClose])
 
     const handleSubmit = async () => {
+        if (!user.id) {
+            user['id'] = userId
+        }
         let result = await fetch('https://heliverse-assignment-backend-bice.vercel.app/api/users/new', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ ...user, id: userId })
+            body: JSON.stringify(user)
         })
         props.onCancel()
     }

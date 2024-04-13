@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { setUser } from "../services/userSlice";
+import { setFilterUser, setUser } from "../services/userSlice";
 import { useDispatch } from "react-redux";
 
-function Filter() {
+function Filter(props) {
   const [genderDropdown, setGenderDropdown] = useState(false);
   const [availableDropdown, setAvailableDropdown] = useState(false);
   const [domainDropdown, setDomainDropdown] = useState(false);
@@ -14,31 +14,49 @@ function Filter() {
     available: [],
     domain: [],
   });
-
+  useEffect(()=>{
+    setGenderDropdown(false)
+    setDomainDropdown(false)
+    setAvailableDropdown(false)
+    setFilters({
+      gender: [],
+      available: [],
+      domain: [],
+    })
+  },[props.show])
   const toggleFilter = (filterType, value, isChecked) => {
     setFilters(prevFilters => {
       let updatedFilters = { ...prevFilters };
       if (isChecked) {
         updatedFilters[filterType] = [...updatedFilters[filterType], value];
       } else {
-        updatedFilters[filterType] = updatedFilters[filterType].filter((item) => item !== value);
+        filterType == "available" ?
+          updatedFilters[filterType] = updatedFilters[filterType].filter((item) => item !== value)
+          :
+          updatedFilters[filterType] = updatedFilters[filterType].filter((item) => item.item !== value.item);
       }
       return updatedFilters;
     });
   };
 
-  const applyFilters = async () => {
-    let filterParams = "";
-    Object.keys(filters).forEach((filterType) => {
-      if (filters[filterType].length > 0) {
-        filterParams += `${filterType}=${filters[filterType].join(",")})`;
-      }
-    });
-    // console.log("result", filterParams)
 
-    //   let result = await fetch(`https://heliverse-assignment-backend-bice.vercel.app/api/users/filter?${filterParams.toString()}`);
-    //   result = await result.json();
-    // dispatch(setUser(result));
+  const applyFilters = async () => {
+    let filterParams = Object.keys(filters ?? {})
+      .map((filterType) => {
+        if (filters[filterType].length > 0) {
+          return filterType === "available"
+            ? `${filterType}=${filters[filterType].map((item) => item).join(",")}`
+            : `${filterType}=${filters[filterType].map((item) => item.item).join(",")}`;
+        }
+        return "";
+      })
+      .filter(Boolean)
+      .join("&");
+
+    let result = await fetch(`https://heliverse-assignment-backend-bice.vercel.app/api/users/filter?${filterParams}`);
+    result = await result.json();
+    
+    dispatch(setUser(result));
   };
 
 
@@ -55,7 +73,7 @@ function Filter() {
   }, [filters])
 
   async function getFilterValues() {
-    let filterValuesData = await fetch('http://127.0.0.1:5000/api/users/filterValues');
+    let filterValuesData = await fetch('https://heliverse-assignment-backend-bice.vercel.app/api/users/filterValues');
     filterValuesData = await filterValuesData.json();
     setDomains(filterValuesData.domain);
     setGenders(filterValuesData.gender);
@@ -81,10 +99,7 @@ function Filter() {
             >
               <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z" />
             </svg>
-            <span class="flex-1 ms-3 whitespace-nowrap">Filter</span>
-            {/* <span class="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                  Pro
-                </span> */}
+            <span class="flex-1 ms-3 whitespace-nowrap">Filter</span>            
           </a>
         </li>
         <li>
@@ -129,7 +144,7 @@ function Filter() {
           >
             {
               genders.map((item, index) =>
-                <li>
+                <li key={index}>
                   <div class="flex items-center mx-7 mb-4">
                     <input id="default-checkbox" onChange={(e) => toggleFilter("gender", { item }, e.target.checked)} type="checkbox" value={item} class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                     <label for="default-checkbox" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{item}</label>
@@ -235,7 +250,7 @@ function Filter() {
           >
             {
               domains.map((item, index) =>
-                <li>
+                <li key={index}>
                   <div class="flex items-center mx-7 mb-4">
                     <input id="default-checkbox" onChange={(e) => toggleFilter("domain", { item }, e.target.checked)} type="checkbox" value={item} class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                     <label for="default-checkbox" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{item}</label>

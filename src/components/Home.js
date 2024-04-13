@@ -1,27 +1,26 @@
 import { useState } from "react";
 import Filter from "./Filter";
 import UserCard from "./UserCard";
-import { useNavigate } from "react-router-dom";
-import { setUser } from "../services/userSlice";
+import { setFilterUser, setUser } from "../services/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import NewUser from "./NewUser";
-import UpdateUser from "./UpdateUser";
+
+import NewTeam from "./NewTeam";
 
 function Home() {
+  const filterUser = setFilterUser(useSelector((state) => state.users));
   const users = setUser(useSelector((state) => state.users));
+  let usersData = (filterUser && filterUser?.payload.users && filterUser.payload.users.length !== 0) ? filterUser : users;
   const [page, setPage] = useState(1);
   const [show, setShow] = useState(false);
+  const [showTeam, setShowTeam] = useState(false);
   const handleCancel = () => {
+    setShowTeam(false);
     setShow(false);
-    console.log("false---")
   };
 
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   async function handleSearch(name) {
-    // if (name.trim() === "") {
-    //   navigate("/");
-    // }
     let result = await fetch(`https://heliverse-assignment-backend-bice.vercel.app/api/users/search/${name}`);
     result = await result.json();
     dispatch(setUser(result));
@@ -30,13 +29,14 @@ function Home() {
     if (btn === "prev") {
       setPage((prevPage) => Math.max(prevPage - 1, 1));
     } else if (btn === "next") {
-      setPage((prevPage) => Math.min(prevPage + 1, users.payload.totalPages));
+      setPage((prevPage) => Math.min(prevPage + 1, usersData.payload.totalPages));
     }
   };
 
   return (
     <>
       <NewUser show={show} onCancel={handleCancel} />
+      <NewTeam show={showTeam} onCancel={handleCancel} />
       <button
         data-drawer-target="sidebar-multi-level-sidebar"
         data-drawer-toggle="sidebar-multi-level-sidebar"
@@ -65,14 +65,14 @@ function Home() {
         class="fixed top-20 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
         aria-label="Sidebar"
       >
-        <Filter />
+        <Filter show={showTeam} />
       </aside>
 
       <div className="pl-80 pt-24 flex">
         <button data-modal-target="crud-modal" onClick={() => setShow(true)} data-modal-toggle="crud-modal" class="block mr-8 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
           + New User
         </button>
-        <button data-modal-target="crud-modal" onClick="" data-modal-toggle="crud-modal" class="block text-white mr-96 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+        <button data-modal-target="crud-modal" onClick={() => setShowTeam(true)} data-modal-toggle="crud-modal" class="block text-white mr-96 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
           + Team
         </button>
         <div class="relative">
@@ -93,7 +93,7 @@ function Home() {
           <div class="flex flex-col items-end mr-5">
             <div class="text-sm text-gray-700 inline-flex mt-2 xs:mt-0  dark:text-gray-400">
               <span class="text-justify mt-2">
-                Showing <span class="font-semibold text-gray-900 dark:text-white">{(users.payload.page - 1) * 20 + 1}</span> to <span class="font-semibold text-gray-900 dark:text-white">{users.payload.page * 20}</span> of <span class="font-semibold text-gray-900 dark:text-white">{users.payload.totalUsers}</span> Entries
+                Showing <span class="font-semibold text-gray-900 dark:text-white">{(usersData.payload.page - 1) * 20 + 1}</span> to <span class="font-semibold text-gray-900 dark:text-white">{usersData.payload.page * 20}</span> of <span class="font-semibold text-gray-900 dark:text-white">{usersData.payload.totalUsers}</span> Entries
               </span>
               <button onClick={() => handlePagination("prev")} class="ml-5 flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 rounded-s hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 Prev

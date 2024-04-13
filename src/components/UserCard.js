@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../services/userSlice";
+import { setFilterUser, setUser } from "../services/userSlice";
 import UpdateUser from "./UpdateUser";
 
 function UserCard(props) {
@@ -45,8 +45,8 @@ function UserCard(props) {
     <>
       {show && < UpdateUser className="mt-10" show={show} onCancel={handleCancel} user={editUser} />}
       {
-        (users.payload.users) ? users.payload.users.map((item, index) => (
-          <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 relative">
+        users.payload.users?.map((item, index) => (
+          <div key={index} className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 relative">
             <div className="flex justify-end px-4 pt-4">
               <button
                 id={`dropdownButton${index}`}
@@ -106,25 +106,9 @@ function UserCard(props) {
               <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 mt-2 rounded dark:bg-blue-200 dark:text-blue-800 ms-3">
                 {item.available ? "Available" : "Unavailable"}
               </span>
-              {/* <div className="flex mt-4 md:mt-6">
-              <a
-                href="#"
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              >
-                Add friend
-              </a>
-              <a
-                href="#"
-                className="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-              >
-                Message
-              </a>
-            </div> */}
             </div>
           </div>
         ))
-          :
-          <h4 className="text-center p-5 text-lg font-bold text-gray-600">No Such Record Found</h4>
       }
     </>
   );

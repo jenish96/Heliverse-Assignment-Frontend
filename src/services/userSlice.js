@@ -7,9 +7,12 @@ export const usersSlice = createSlice({
     setUser: (state, action) => {
       return action.payload;
     },
+    setFilterUser: (state, action) => {
+      return action.payload;
+    },
   },
 });
 
-export const { setUser } = usersSlice.actions;
+export const { setUser,setFilterUser } = usersSlice.actions;
 
 export default usersSlice.reducer;
